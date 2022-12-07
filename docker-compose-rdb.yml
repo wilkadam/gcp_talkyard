@@ -1,0 +1,24 @@
+version: '3.7'
+
+
+services:
+  rdb:
+    image: ${DOCKER_REPOSITORY}/talkyard-rdb:${VERSION_TAG}
+    # dockerfile: https://github.com/debiki/talkyard/blob/master/images/rdb/Dockerfile
+    restart: always
+    volumes:
+      - ./data/rdb/:/var/lib/postgresql/data/
+      - ./conf/rdb/:/var/lib/postgresql/conf/
+      # Mount here so standard monitoring tools configured to find Postgres logs here will work.
+      # (Inside the container, we don't mount in /var/lib/postgresql/data/pg_log/ because
+      # then Postgres would refuse to create a db in data/, because data/ wouldn't be empty.)
+      - /var/log/postgresql/:/var/log/postgresql/
+        #networks:
+        #internal_net:
+        #ipv4_address: ${INTERNAL_NET_RDB_IP}
+    ports:
+      - '5432:5432'
+    ## To log to stderr instead of /var/log/postgresql/:
+    #command: '--logging_collector=off'
+    environment:
+      POSTGRES_PASSWORD: '$POSTGRES_PASSWORD'
